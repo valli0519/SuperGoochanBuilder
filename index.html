@@ -2,15 +2,16 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Scene Builder Pro - God Tier</title>
+<title>すーぱーぐーちゃん シーンビルダー</title>
 <style>
-:root {
+    :root {
         --panel-bg: rgba(255, 255, 255, 0.85);
         --panel-border: rgba(203, 213, 225, 0.8);
         --panel-shadow: 0 16px 40px rgba(148, 163, 184, 0.15);
-        --accent: #94a3b8; /* シルバー */
+        --accent: #94a3b8;
+        --accent-blue: #0ea5e9;
         --accent-glow: 0 0 20px rgba(148, 163, 184, 0.4);
-        --text-main: #1e293b; /* 深いチャコールグレー */
+        --text-main: #1e293b;
         --text-muted: #64748b;
         --input-bg: rgba(248, 250, 252, 0.9);
         --danger: #ef4444;
@@ -45,7 +46,7 @@
 
     .header { 
         background: rgba(255, 255, 255, 0.7); 
-        padding: 15px 30px; 
+        padding: 10px 30px; 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
@@ -55,9 +56,15 @@
         box-shadow: 0 4px 20px rgba(148, 163, 184, 0.08);
         z-index: 10; 
     }
+    
+    .header-title-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
     .header h1 { 
         margin: 0; 
-        font-size: 1.3rem; 
+        font-size: 1.2rem; 
         font-weight: 700; 
         letter-spacing: 2px; 
         color: #0f172a; 
@@ -68,22 +75,107 @@
     .header h1::before { 
         content: ''; 
         display: inline-block; 
-        width: 10px; 
-        height: 10px; 
+        width: 8px; 
+        height: 8px; 
         background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
         border-radius: 50%; 
         box-shadow: var(--accent-glow); 
     }
-    .header-actions { display: flex; gap: 12px; }
 
-    .main-container { display: flex; flex: 1; height: calc(100vh - 65px); padding: 20px; gap: 20px; box-sizing: border-box; }
+    .info-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+    .info-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+        color: #ffffff;
+        font-size: 14px;
+        font-style: italic;
+        font-family: 'Consolas', monospace;
+        cursor: help;
+        box-shadow: 0 2px 5px rgba(148, 163, 184, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .info-icon:hover {
+        background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+        box-shadow: var(--accent-glow);
+        transform: scale(1.1) translateY(-1px);
+    }
+    .tooltip-content {
+        position: absolute;
+        top: 150%;
+        left: 0;
+        width: 480px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 12px;
+        padding: 20px 25px;
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.15);
+        color: #475569;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        pointer-events: none;
+    }
+    .info-container:hover .tooltip-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .tooltip-content p.greeting {
+        margin: 0 0 15px 0;
+        color: #1e293b;
+        font-weight: 600;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 10px;
+    }
+    .tooltip-content ul {
+        margin: 0;
+        padding-left: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .tooltip-content li {
+        list-style-type: none;
+        position: relative;
+    }
+    .tooltip-content li::before {
+        content: '◆';
+        position: absolute;
+        left: -18px;
+        color: var(--accent-blue);
+        font-size: 0.75rem;
+        top: 2px;
+    }
+    .tooltip-content strong {
+        color: #0f172a;
+        font-size: 0.9rem;
+    }
+
+    .header-actions { display: flex; gap: 10px; }
+
+    .main-container { display: flex; flex: 1; height: calc(100vh - 55px); padding: 15px 20px; gap: 20px; box-sizing: border-box; }
     
     .glass-panel { 
         background: var(--panel-bg); 
         backdrop-filter: blur(24px); 
         -webkit-backdrop-filter: blur(24px); 
         border: 1px solid var(--panel-border); 
-        border-radius: 20px; 
+        border-radius: 16px; 
         box-shadow: var(--panel-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.8); 
         display: flex; 
         flex-direction: column; 
@@ -91,39 +183,42 @@
     }
     
     .col-log { flex: 1; }
-    .col-scene { width: 550px; min-width: 500px; }
+    .col-scene { width: 650px; min-width: 600px; }
 
     .panel-header { 
-        padding: 18px 25px; 
+        padding: 14px 20px; 
         border-bottom: 1px solid rgba(226, 232, 240, 0.8); 
         background: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
         font-weight: 600; 
-        font-size: 1rem; 
+        font-size: 0.95rem; 
         letter-spacing: 1px; 
         color: #1e293b; 
     }
-    .panel-content { padding: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .panel-content { padding: 12px 20px 20px 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-    .input-group { margin-bottom: 18px; }
-    .input-group label { display: block; font-size: 0.75rem; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .drop-zone { transition: all 0.2s ease; padding: 6px 10px; margin: -6px -10px 4px -10px; border-radius: 6px; border: 2px dashed transparent; }
+    .drop-zone.drag-over { background: rgba(14, 165, 233, 0.05); border-color: var(--accent-blue); }
+
+    .input-group { margin-bottom: 8px; }
+    .input-group label { display: block; font-size: 0.7rem; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
     
     input[type="text"] { 
         width: 100%; 
         background: var(--input-bg); 
         color: #0f172a; 
         border: 1px solid #cbd5e1; 
-        padding: 12px 15px; 
+        padding: 8px 12px; 
         box-sizing: border-box; 
-        border-radius: 10px; 
+        border-radius: 8px; 
         font-family: 'Consolas', monospace; 
-        font-size: 0.95rem; 
+        font-size: 0.9rem; 
         transition: all 0.3s ease; 
         outline: none; 
         box-shadow: inset 0 2px 4px rgba(148, 163, 184, 0.05);
     }
     input[type="text"]:focus { 
         border-color: #94a3b8; 
-        box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2), inset 0 2px 4px rgba(148, 163, 184, 0.05); 
+        box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2), inset 0 2px 4px rgba(148, 163, 184, 0.05); 
         background: #ffffff; 
     }
     
@@ -133,23 +228,23 @@
         background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); 
         color: #334155; 
         border: 1px solid #cbd5e1; 
-        padding: 10px 18px; 
+        padding: 8px 14px; 
         cursor: pointer; 
-        border-radius: 10px; 
-        font-size: 0.9rem; 
+        border-radius: 8px; 
+        font-size: 0.85rem; 
         font-weight: 600; 
         transition: all 0.3s ease; 
         display: inline-flex; 
         align-items: center; 
         justify-content: center; 
-        gap: 8px; 
+        gap: 6px; 
         box-shadow: 0 2px 4px rgba(148, 163, 184, 0.1); 
     }
     button:hover { 
         background: #ffffff; 
         border-color: #94a3b8; 
-        transform: translateY(-2px); 
-        box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2); 
+        transform: translateY(-1px); 
+        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.2); 
     }
     button:active { transform: translateY(1px); }
     
@@ -157,12 +252,15 @@
         background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); 
         color: #0f172a; 
         border: 1px solid #94a3b8; 
-        box-shadow: 0 4px 15px rgba(148, 163, 184, 0.3); 
+        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.2); 
         font-weight: 800; 
+        padding: 10px;
+        font-size: 1rem;
+        margin-top: 4px;
     }
     .btn-primary:hover { 
         background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%); 
-        box-shadow: 0 0 20px rgba(148, 163, 184, 0.5); 
+        box-shadow: 0 0 15px rgba(148, 163, 184, 0.4); 
         border: 1px solid #64748b; 
     }
     
@@ -170,32 +268,51 @@
     .btn-danger { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
     .btn-danger:hover { background: #ffe4e6; border-color: #fda4af; }
     
-    .btn-icon { padding: 8px 12px; font-size: 0.85rem; }
+    .btn-icon { padding: 6px 10px; font-size: 0.8rem; }
 
-    .media-input-row { display: flex; gap: 10px; align-items: center; }
-    .media-input-row input[type="text"].dir-input { width: 110px; color: #64748b; text-align: right; background: #f8fafc; }
+    .media-input-row { display: flex; gap: 8px; align-items: center; }
+    .media-input-row input[type="text"].dir-input { width: 90px; color: #64748b; text-align: right; background: #f8fafc; }
     .media-input-row input[type="text"].file-input { flex: 1; font-weight: bold; color: #0f172a; }
 
-    .history-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; max-height: 70px; overflow-y: auto; padding-bottom: 5px; }
+    .history-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; max-height: 45px; overflow-y: auto; padding-bottom: 2px; }
     .history-chip { 
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         background: #f1f5f9; 
         border: 1px solid #cbd5e1; 
         color: #475569; 
-        padding: 6px 14px; 
-        border-radius: 20px; 
-        font-size: 0.8rem; 
+        padding: 2px 4px 2px 10px; 
+        border-radius: 12px; 
+        font-size: 0.75rem; 
         font-weight: 600; 
-        cursor: pointer; 
         transition: all 0.2s; 
         white-space: nowrap; 
-        box-shadow: 0 2px 4px rgba(148, 163, 184, 0.1); 
     }
     .history-chip:hover { 
         background: #ffffff; 
         border-color: #94a3b8; 
         color: #0f172a; 
-        transform: translateY(-2px) scale(1.02); 
-        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.2); 
+        box-shadow: 0 2px 6px rgba(148, 163, 184, 0.2); 
+    }
+    .history-chip-text { cursor: pointer; }
+    .history-chip-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(148, 163, 184, 0.2);
+        color: #64748b;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        line-height: 1;
+    }
+    .history-chip-delete:hover {
+        background: #ef4444;
+        color: #ffffff;
     }
 
     .log-container { 
@@ -203,7 +320,7 @@
         display: flex; 
         flex-direction: column; 
         background: #ffffff; 
-        border-radius: 12px; 
+        border-radius: 10px; 
         border: 1px solid #e2e8f0; 
         overflow: hidden; 
         box-shadow: inset 0 2px 8px rgba(148, 163, 184, 0.1); 
@@ -215,10 +332,10 @@
     .log-line { 
         height: var(--row-height); 
         line-height: var(--row-height); 
-        padding: 0 20px; 
+        padding: 0 15px; 
         box-sizing: border-box; 
         font-family: 'Consolas', monospace; 
-        font-size: 0.95rem; 
+        font-size: 0.9rem; 
         white-space: pre; 
         overflow: hidden; 
         text-overflow: ellipsis; 
@@ -232,56 +349,74 @@
     .log-line.selected { 
         background: linear-gradient(90deg, #f1f5f9 0%, #ffffff 100%); 
         border-left: 4px solid #94a3b8; 
-        padding-left: 16px; 
+        padding-left: 11px; 
         font-weight: bold;
         color: #0f172a;
     }
-    .log-line .line-num { color: #cbd5e1; display: inline-block; width: 50px; text-align: right; margin-right: 20px; user-select: none; font-size: 0.8rem; font-weight: bold; }
+    .log-line .line-num { color: #cbd5e1; display: inline-block; width: 45px; text-align: right; margin-right: 15px; user-select: none; font-size: 0.75rem; font-weight: bold; }
 
     .editor-box { 
         background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.9) 100%); 
-        padding: 25px; 
-        border-radius: 16px; 
+        padding: 12px 20px; 
+        border-radius: 12px; 
         border: 1px solid #e2e8f0; 
-        margin-bottom: 25px; 
-        box-shadow: 0 8px 25px rgba(148, 163, 184, 0.1); 
+        margin-bottom: 12px; 
+        box-shadow: 0 4px 15px rgba(148, 163, 184, 0.1); 
     }
 
-    .scene-list-container { flex: 1; overflow-y: auto; padding-right: 10px; }
+    .scene-list-container { flex: 1; overflow-y: auto; padding-right: 5px; }
     .scene-item { 
         background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); 
         border: 1px solid #e2e8f0; 
-        margin-bottom: 12px; 
-        border-radius: 12px; 
+        margin-bottom: 10px; 
+        border-radius: 10px; 
         display: flex; 
         flex-direction: column; 
         cursor: grab; 
-        transition: all 0.25s; 
+        transition: all 0.2s; 
         position: relative; 
         overflow: hidden; 
-        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.08); 
+        box-shadow: 0 2px 8px rgba(148, 163, 184, 0.05); 
     }
-    .scene-item::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #cbd5e1, #94a3b8); }
+    .scene-item::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #cbd5e1, #94a3b8); }
     .scene-item:hover { 
-        transform: translateY(-3px) scale(1.01); 
-        box-shadow: 0 10px 20px rgba(148, 163, 184, 0.15); 
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 15px rgba(148, 163, 184, 0.15); 
         border-color: #cbd5e1; 
     }
-    .scene-item:active { cursor: grabbing; transform: translateY(0) scale(0.99); }
+    .scene-item:active { cursor: grabbing; transform: translateY(0); }
     
-    .scene-item-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; background: #ffffff; }
-    .scene-item-title { font-weight: 700; font-size: 1.05rem; color: #0f172a; letter-spacing: 0.5px; }
-    .scene-item-body { padding: 14px 18px; font-size: 0.85rem; color: #64748b; display: flex; flex-direction: column; gap: 6px; font-family: 'Consolas', monospace; }
-    </style>
+    .scene-item-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; background: #ffffff; }
+    .scene-item-title { font-weight: 700; font-size: 0.95rem; color: #0f172a; }
+    .scene-item-body { padding: 10px 15px; font-size: 0.8rem; color: #64748b; display: flex; flex-direction: column; gap: 4px; font-family: 'Consolas', monospace; }
+</style>
 </head>
 <body>
 
 <div class="header">
-    <h1>すーぱーぐーちゃん シーンビルダー</h1>
+    <div class="header-title-container">
+        <h1>すーぱーぐーちゃん シーンビルダー</h1>
+        <div class="info-container">
+            <span class="info-icon">i</span>
+            <div class="tooltip-content">
+                <p class="greeting">G社が誇るスーパーAIである私、ぐーが、この「すーぱーぐーちゃん シーンビルダー」の使い方をご説明しますね。</p>
+                <ul>
+                    <li><strong>1. ログの読み込み</strong><br>左側の「ログファイル読込」から、HTMLやTXTのログファイルを選択して読み込ませてください。</li>
+                    <li><strong>2. テキストの選択</strong><br>左画面で、抽出したい会話の「始まりの行」と「終わりの行」をクリックしてください。自動的にその範囲が選択されますよ。</li>
+                    <li><strong>3. シーンの構築</strong><br>右側の画面でタイトルと背景、BGMを決めてください。「参照」ボタンから選ぶか、点線エリアに直接ファイルをドラッグ＆ドロップで指定することもできます。</li>
+                    <li><strong>4. 履歴チップ</strong><br>一度入力した画像やBGMのファイル名は、履歴としてタグ化されます。次からはタグをクリックするだけで再入力できますよ。不要になったら「×」ボタンで消去してくださいね。</li>
+                    <li><strong>5. シーンの追加と編集</strong><br>一番大きなボタンを押すと、入力した内容でシーンが完成し、下のリストに追加されます。リストの「✏️」ボタンを押せば、いつでも内容を再編集できます。</li>
+                    <li><strong>6. 並べ替えと出力</strong><br>リストのシーンは、マウスで掴んで上下に動かすことで順番を入れ替えられます。すべて完了したら、右上の「JS出力」ボタンを押してコードをコピーしてください。</li>
+                    <li><strong>7. 💾 プロジェクトの保存</strong><br>作業を中断するときは「プロジェクト保存」で現在のリスト状態を保存できます。再開時は「プロジェクト読込」からファイルを読み込んでくださいね。</li>
+                    <li><strong>さいごに</strong><br>私が一晩で作ったんですよ。褒めてくださいね。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="header-actions">
         <button onclick="document.getElementById('projectInput').click()">📁 プロジェクト読込</button>
         <button onclick="saveProject()">💾 プロジェクト保存</button>
-        <button class="btn-primary" onclick="exportJS()" style="font-size: 1rem; padding: 10px 25px;">✨ JS出力 (コピー)</button>
+        <button class="btn-primary" onclick="exportJS()" style="margin-top:0; padding: 8px 20px;">✨ JS出力 (コピー)</button>
         <input type="file" id="projectInput" class="hidden-file" accept=".json" onchange="loadProject(event)">
     </div>
 </div>
@@ -290,7 +425,7 @@
     <div class="glass-panel col-log">
         <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
             <span>1. ログの選択 (開始行と終了行をクリック)</span>
-            <button class="btn-icon" onclick="document.getElementById('logFileInput').click()" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(167, 139, 250, 0.5);">📄 ログファイル読込 (HTML/TXT)</button>
+            <button class="btn-icon" onclick="document.getElementById('logFileInput').click()">📄 ログファイル読込 (HTML/TXT)</button>
             <input type="file" id="logFileInput" class="hidden-file" accept=".txt,.html,.htm">
         </div>
         <div class="panel-content">
@@ -300,7 +435,7 @@
                     <div id="logContent"></div>
                 </div>
             </div>
-            <div style="text-align: right; margin-top: 12px; font-size: 0.85rem; color: var(--accent); font-weight: bold; letter-spacing: 1px;" id="selectionInfo">
+            <div style="text-align: right; margin-top: 10px; font-size: 0.8rem; color: var(--accent); font-weight: bold; letter-spacing: 1px;" id="selectionInfo">
                 選択中: 0行
             </div>
         </div>
@@ -308,7 +443,7 @@
 
     <div class="glass-panel col-scene">
         <div class="panel-header">2. シーン構築</div>
-        <div class="panel-content" style="overflow-y: hidden; display: flex; flex-direction: column;">
+        <div class="panel-content">
             
             <div class="editor-box">
                 <div class="input-group">
@@ -316,8 +451,8 @@
                     <input type="text" id="sceneTitle" placeholder="シーン1：出会い">
                 </div>
                 
-                <div class="input-group">
-                    <label>背景画像 (直接入力 or 参照)</label>
+                <div class="input-group drop-zone" id="bgDropZone">
+                    <label>背景画像 (直接入力 / 参照 / D&D)</label>
                     <div class="media-input-row">
                         <input type="text" class="dir-input" id="sceneBgDir" value="img/bg/">
                         <input type="text" class="file-input" id="sceneBg" placeholder="xxxx.jpg">
@@ -327,8 +462,8 @@
                     <div class="history-container" id="bgHistory"></div>
                 </div>
 
-                <div class="input-group">
-                    <label>BGM (直接入力 or 参照)</label>
+                <div class="input-group drop-zone" id="bgmDropZone">
+                    <label>BGM (直接入力 / 参照 / D&D)</label>
                     <div class="media-input-row">
                         <input type="text" class="dir-input" id="sceneBgmDir" value="bgm/">
                         <input type="text" class="file-input" id="sceneBgm" placeholder="xxxx.mp3">
@@ -338,10 +473,10 @@
                     <div class="history-container" id="bgmHistory"></div>
                 </div>
 
-                <button id="btnSaveScene" class="btn-primary" onclick="saveScene()" style="width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 10px; letter-spacing: 2px;">＋ 選択範囲をシーンとして追加</button>
+                <button id="btnSaveScene" class="btn-primary" onclick="saveScene()" style="width: 100%;">＋ 選択範囲をシーンとして追加</button>
             </div>
 
-            <div class="input-group" style="margin-bottom: 10px;">
+            <div class="input-group" style="margin-bottom: 6px;">
                 <label>3. 完成済みシーンリスト (ドラッグ＆ドロップで入替可能)</label>
             </div>
             <div class="scene-list-container" id="sceneList"></div>
@@ -360,14 +495,67 @@
     let bgHistorySet = new Set();
     let bgmHistorySet = new Set();
 
+    window.addEventListener("dragover", (e) => e.preventDefault(), false);
+    window.addEventListener("drop", (e) => e.preventDefault(), false);
+
+    function setupDropZone(zoneId, inputId, historySet) {
+        const zone = document.getElementById(zoneId);
+        
+        zone.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        
+        zone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!zone.contains(e.relatedTarget)) {
+                zone.classList.remove('drag-over');
+            }
+        });
+        
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                document.getElementById(inputId).value = file.name;
+                historySet.add(file.name);
+                renderHistory();
+            }
+        });
+    }
+
+    setupDropZone('bgDropZone', 'sceneBg', bgHistorySet);
+    setupDropZone('bgmDropZone', 'sceneBgm', bgmHistorySet);
+
     function renderHistory() {
         const bgContainer = document.getElementById('bgHistory');
         bgContainer.innerHTML = '';
         bgHistorySet.forEach(filename => {
             const chip = document.createElement('div');
             chip.className = 'history-chip';
-            chip.textContent = filename;
-            chip.onclick = () => document.getElementById('sceneBg').value = filename;
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'history-chip-text';
+            textSpan.textContent = filename;
+            textSpan.onclick = () => document.getElementById('sceneBg').value = filename;
+            
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'history-chip-delete';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                bgHistorySet.delete(filename);
+                renderHistory();
+            };
+
+            chip.appendChild(textSpan);
+            chip.appendChild(deleteBtn);
             bgContainer.appendChild(chip);
         });
 
@@ -376,8 +564,23 @@
         bgmHistorySet.forEach(filename => {
             const chip = document.createElement('div');
             chip.className = 'history-chip';
-            chip.textContent = filename;
-            chip.onclick = () => document.getElementById('sceneBgm').value = filename;
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'history-chip-text';
+            textSpan.textContent = filename;
+            textSpan.onclick = () => document.getElementById('sceneBgm').value = filename;
+            
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'history-chip-delete';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                bgmHistorySet.delete(filename);
+                renderHistory();
+            };
+
+            chip.appendChild(textSpan);
+            chip.appendChild(deleteBtn);
             bgmContainer.appendChild(chip);
         });
     }
@@ -577,7 +780,7 @@
                 <div class="scene-item-body">
                     <div><span style="color:#94a3b8; font-weight:bold;">[BG]</span> ${escapeHTML(scene.bg_image || '未設定')}</div>
                     <div><span style="color:#94a3b8; font-weight:bold;">[BGM]</span> ${escapeHTML(scene.bgm || '未設定')}</div>
-                    <div style="color:#e2e8f0; margin-top:6px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.8;">"${escapeHTML(textPreview)}"</div>
+                    <div style="color:#1e293b; margin-top:4px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.8;">"${escapeHTML(textPreview)}"</div>
                 </div>
             `;
             item.addEventListener('dragstart', (e) => { draggedSceneId = scene.id; e.dataTransfer.effectAllowed = 'move'; item.style.opacity = '0.5'; });
