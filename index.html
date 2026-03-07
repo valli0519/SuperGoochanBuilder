@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Scene Builder Pro - God Tier</title>
+<style>
+:root {
+        --panel-bg: rgba(255, 255, 255, 0.85);
+        --panel-border: rgba(203, 213, 225, 0.8);
+        --panel-shadow: 0 16px 40px rgba(148, 163, 184, 0.15);
+        --accent: #94a3b8; /* シルバー */
+        --accent-glow: 0 0 20px rgba(148, 163, 184, 0.4);
+        --text-main: #1e293b; /* 深いチャコールグレー */
+        --text-muted: #64748b;
+        --input-bg: rgba(248, 250, 252, 0.9);
+        --danger: #ef4444;
+        --success: #10b981;
+        --row-height: 28px;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    body { 
+        font-family: 'Segoe UI', Meiryo, sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        display: flex; 
+        flex-direction: column; 
+        height: 100vh; 
+        background: linear-gradient(-45deg, #ffffff, #f1f5f9, #e2e8f0, #ffffff);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+        color: var(--text-main); 
+        overflow: hidden; 
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; transition: background 0.3s; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    .header { 
+        background: rgba(255, 255, 255, 0.7); 
+        padding: 15px 30px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8); 
+        backdrop-filter: blur(20px); 
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 4px 20px rgba(148, 163, 184, 0.08);
+        z-index: 10; 
+    }
+    .header h1 { 
+        margin: 0; 
+        font-size: 1.3rem; 
+        font-weight: 700; 
+        letter-spacing: 2px; 
+        color: #0f172a; 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+    }
+    .header h1::before { 
+        content: ''; 
+        display: inline-block; 
+        width: 10px; 
+        height: 10px; 
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+        border-radius: 50%; 
+        box-shadow: var(--accent-glow); 
+    }
+    .header-actions { display: flex; gap: 12px; }
+
+    .main-container { display: flex; flex: 1; height: calc(100vh - 65px); padding: 20px; gap: 20px; box-sizing: border-box; }
+    
+    .glass-panel { 
+        background: var(--panel-bg); 
+        backdrop-filter: blur(24px); 
+        -webkit-backdrop-filter: blur(24px); 
+        border: 1px solid var(--panel-border); 
+        border-radius: 20px; 
+        box-shadow: var(--panel-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.8); 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden; 
+    }
+    
+    .col-log { flex: 1; }
+    .col-scene { width: 550px; min-width: 500px; }
+
+    .panel-header { 
+        padding: 18px 25px; 
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8); 
+        background: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
+        font-weight: 600; 
+        font-size: 1rem; 
+        letter-spacing: 1px; 
+        color: #1e293b; 
+    }
+    .panel-content { padding: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .input-group { margin-bottom: 18px; }
+    .input-group label { display: block; font-size: 0.75rem; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    
+    input[type="text"] { 
+        width: 100%; 
+        background: var(--input-bg); 
+        color: #0f172a; 
+        border: 1px solid #cbd5e1; 
+        padding: 12px 15px; 
+        box-sizing: border-box; 
+        border-radius: 10px; 
+        font-family: 'Consolas', monospace; 
+        font-size: 0.95rem; 
+        transition: all 0.3s ease; 
+        outline: none; 
+        box-shadow: inset 0 2px 4px rgba(148, 163, 184, 0.05);
+    }
+    input[type="text"]:focus { 
+        border-color: #94a3b8; 
+        box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2), inset 0 2px 4px rgba(148, 163, 184, 0.05); 
+        background: #ffffff; 
+    }
+    
+    input[type="file"].hidden-file { display: none; }
+
+    button { 
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); 
+        color: #334155; 
+        border: 1px solid #cbd5e1; 
+        padding: 10px 18px; 
+        cursor: pointer; 
+        border-radius: 10px; 
+        font-size: 0.9rem; 
+        font-weight: 600; 
+        transition: all 0.3s ease; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 8px; 
+        box-shadow: 0 2px 4px rgba(148, 163, 184, 0.1); 
+    }
+    button:hover { 
+        background: #ffffff; 
+        border-color: #94a3b8; 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2); 
+    }
+    button:active { transform: translateY(1px); }
+    
+    .btn-primary { 
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); 
+        color: #0f172a; 
+        border: 1px solid #94a3b8; 
+        box-shadow: 0 4px 15px rgba(148, 163, 184, 0.3); 
+        font-weight: 800; 
+    }
+    .btn-primary:hover { 
+        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%); 
+        box-shadow: 0 0 20px rgba(148, 163, 184, 0.5); 
+        border: 1px solid #64748b; 
+    }
+    
+    .btn-success { background: linear-gradient(135deg, #f1f5f9, #cbd5e1); color: #0f172a; border: 1px solid #94a3b8; }
+    .btn-danger { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+    .btn-danger:hover { background: #ffe4e6; border-color: #fda4af; }
+    
+    .btn-icon { padding: 8px 12px; font-size: 0.85rem; }
+
+    .media-input-row { display: flex; gap: 10px; align-items: center; }
+    .media-input-row input[type="text"].dir-input { width: 110px; color: #64748b; text-align: right; background: #f8fafc; }
+    .media-input-row input[type="text"].file-input { flex: 1; font-weight: bold; color: #0f172a; }
+
+    .history-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; max-height: 70px; overflow-y: auto; padding-bottom: 5px; }
+    .history-chip { 
+        background: #f1f5f9; 
+        border: 1px solid #cbd5e1; 
+        color: #475569; 
+        padding: 6px 14px; 
+        border-radius: 20px; 
+        font-size: 0.8rem; 
+        font-weight: 600; 
+        cursor: pointer; 
+        transition: all 0.2s; 
+        white-space: nowrap; 
+        box-shadow: 0 2px 4px rgba(148, 163, 184, 0.1); 
+    }
+    .history-chip:hover { 
+        background: #ffffff; 
+        border-color: #94a3b8; 
+        color: #0f172a; 
+        transform: translateY(-2px) scale(1.02); 
+        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.2); 
+    }
+
+    .log-container { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        background: #ffffff; 
+        border-radius: 12px; 
+        border: 1px solid #e2e8f0; 
+        overflow: hidden; 
+        box-shadow: inset 0 2px 8px rgba(148, 163, 184, 0.1); 
+    }
+    #logViewport { flex: 1; overflow-y: auto; position: relative; }
+    #logSpacer { width: 1px; }
+    #logContent { position: absolute; top: 0; left: 0; right: 0; }
+    
+    .log-line { 
+        height: var(--row-height); 
+        line-height: var(--row-height); 
+        padding: 0 20px; 
+        box-sizing: border-box; 
+        font-family: 'Consolas', monospace; 
+        font-size: 0.95rem; 
+        white-space: pre; 
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+        cursor: pointer; 
+        border-bottom: 1px solid #f1f5f9; 
+        user-select: none; 
+        transition: all 0.15s ease; 
+        color: #334155; 
+    }
+    .log-line:hover { background: #f8fafc; }
+    .log-line.selected { 
+        background: linear-gradient(90deg, #f1f5f9 0%, #ffffff 100%); 
+        border-left: 4px solid #94a3b8; 
+        padding-left: 16px; 
+        font-weight: bold;
+        color: #0f172a;
+    }
+    .log-line .line-num { color: #cbd5e1; display: inline-block; width: 50px; text-align: right; margin-right: 20px; user-select: none; font-size: 0.8rem; font-weight: bold; }
+
+    .editor-box { 
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.9) 100%); 
+        padding: 25px; 
+        border-radius: 16px; 
+        border: 1px solid #e2e8f0; 
+        margin-bottom: 25px; 
+        box-shadow: 0 8px 25px rgba(148, 163, 184, 0.1); 
+    }
+
+    .scene-list-container { flex: 1; overflow-y: auto; padding-right: 10px; }
+    .scene-item { 
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); 
+        border: 1px solid #e2e8f0; 
+        margin-bottom: 12px; 
+        border-radius: 12px; 
+        display: flex; 
+        flex-direction: column; 
+        cursor: grab; 
+        transition: all 0.25s; 
+        position: relative; 
+        overflow: hidden; 
+        box-shadow: 0 4px 10px rgba(148, 163, 184, 0.08); 
+    }
+    .scene-item::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, #cbd5e1, #94a3b8); }
+    .scene-item:hover { 
+        transform: translateY(-3px) scale(1.01); 
+        box-shadow: 0 10px 20px rgba(148, 163, 184, 0.15); 
+        border-color: #cbd5e1; 
+    }
+    .scene-item:active { cursor: grabbing; transform: translateY(0) scale(0.99); }
+    
+    .scene-item-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; background: #ffffff; }
+    .scene-item-title { font-weight: 700; font-size: 1.05rem; color: #0f172a; letter-spacing: 0.5px; }
+    .scene-item-body { padding: 14px 18px; font-size: 0.85rem; color: #64748b; display: flex; flex-direction: column; gap: 6px; font-family: 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>すーぱーぐーちゃん シーンビルダー</h1>
+    <div class="header-actions">
+        <button onclick="document.getElementById('projectInput').click()">📁 プロジェクト読込</button>
+        <button onclick="saveProject()">💾 プロジェクト保存</button>
+        <button class="btn-primary" onclick="exportJS()" style="font-size: 1rem; padding: 10px 25px;">✨ JS出力 (コピー)</button>
+        <input type="file" id="projectInput" class="hidden-file" accept=".json" onchange="loadProject(event)">
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="glass-panel col-log">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>1. ログの選択 (開始行と終了行をクリック)</span>
+            <button class="btn-icon" onclick="document.getElementById('logFileInput').click()" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(167, 139, 250, 0.5);">📄 ログファイル読込 (HTML/TXT)</button>
+            <input type="file" id="logFileInput" class="hidden-file" accept=".txt,.html,.htm">
+        </div>
+        <div class="panel-content">
+            <div class="log-container">
+                <div id="logViewport" onscroll="renderLogLines()">
+                    <div id="logSpacer"></div>
+                    <div id="logContent"></div>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 12px; font-size: 0.85rem; color: var(--accent); font-weight: bold; letter-spacing: 1px;" id="selectionInfo">
+                選択中: 0行
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel col-scene">
+        <div class="panel-header">2. シーン構築</div>
+        <div class="panel-content" style="overflow-y: hidden; display: flex; flex-direction: column;">
+            
+            <div class="editor-box">
+                <div class="input-group">
+                    <label>シーンタイトル</label>
+                    <input type="text" id="sceneTitle" placeholder="シーン1：出会い">
+                </div>
+                
+                <div class="input-group">
+                    <label>背景画像 (直接入力 or 参照)</label>
+                    <div class="media-input-row">
+                        <input type="text" class="dir-input" id="sceneBgDir" value="img/bg/">
+                        <input type="text" class="file-input" id="sceneBg" placeholder="xxxx.jpg">
+                        <button class="btn-icon" onclick="document.getElementById('bgFileInput').click()">参照</button>
+                        <input type="file" id="bgFileInput" class="hidden-file" accept="image/*" onchange="handleFileSelect(event, 'sceneBg')">
+                    </div>
+                    <div class="history-container" id="bgHistory"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>BGM (直接入力 or 参照)</label>
+                    <div class="media-input-row">
+                        <input type="text" class="dir-input" id="sceneBgmDir" value="bgm/">
+                        <input type="text" class="file-input" id="sceneBgm" placeholder="xxxx.mp3">
+                        <button class="btn-icon" onclick="document.getElementById('bgmFileInput').click()">参照</button>
+                        <input type="file" id="bgmFileInput" class="hidden-file" accept="audio/*" onchange="handleFileSelect(event, 'sceneBgm')">
+                    </div>
+                    <div class="history-container" id="bgmHistory"></div>
+                </div>
+
+                <button id="btnSaveScene" class="btn-primary" onclick="saveScene()" style="width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 10px; letter-spacing: 2px;">＋ 選択範囲をシーンとして追加</button>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>3. 完成済みシーンリスト (ドラッグ＆ドロップで入替可能)</label>
+            </div>
+            <div class="scene-list-container" id="sceneList"></div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    let logLinesData = [];
+    let scenes = [];
+    let editingSceneId = null; 
+    let sceneCounter = 0; 
+    let selectStart = -1;
+    let selectEnd = -1;
+    let bgHistorySet = new Set();
+    let bgmHistorySet = new Set();
+
+    function renderHistory() {
+        const bgContainer = document.getElementById('bgHistory');
+        bgContainer.innerHTML = '';
+        bgHistorySet.forEach(filename => {
+            const chip = document.createElement('div');
+            chip.className = 'history-chip';
+            chip.textContent = filename;
+            chip.onclick = () => document.getElementById('sceneBg').value = filename;
+            bgContainer.appendChild(chip);
+        });
+
+        const bgmContainer = document.getElementById('bgmHistory');
+        bgmContainer.innerHTML = '';
+        bgmHistorySet.forEach(filename => {
+            const chip = document.createElement('div');
+            chip.className = 'history-chip';
+            chip.textContent = filename;
+            chip.onclick = () => document.getElementById('sceneBgm').value = filename;
+            bgmContainer.appendChild(chip);
+        });
+    }
+
+    function handleFileSelect(event, targetId) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById(targetId).value = file.name;
+            if(targetId === 'sceneBg') bgHistorySet.add(file.name);
+            if(targetId === 'sceneBgm') bgmHistorySet.add(file.name);
+            renderHistory();
+        }
+        event.target.value = ''; 
+    }
+
+    document.getElementById('logFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const rawText = e.target.result;
+            let textContent = "";
+
+            if (file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm')) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(rawText, 'text/html');
+                const paragraphs = doc.querySelectorAll('p');
+                const linesArray = [];
+                
+                paragraphs.forEach(p => {
+                    let lineText = p.textContent.replace(/\r?\n/g, '').replace(/\s{2,}/g, ' ').trim();
+                    lineText = lineText.replace(/\s+:/g, ':');
+                    lineText = lineText.replace(/\[(?:メイン|main)\]\s*/gi, '').trim();
+                    lineText = lineText.replace(/^:\s*/, '');
+                    if (lineText) linesArray.push(lineText);
+                });
+                textContent = linesArray.join('\n');
+            } else {
+                textContent = rawText;
+                const tempLines = textContent.split(/\r?\n/);
+                textContent = tempLines.map(line => line.replace(/\[(?:メイン|main)\]\s*/gi, '').trim()).filter(l => l.length > 0).join('\n');
+            }
+
+            logLinesData = textContent.split(/\r?\n/).filter(line => line.length > 0);
+            
+            document.getElementById('logSpacer').style.height = (logLinesData.length * 28) + "px"; 
+            selectStart = -1;
+            selectEnd = -1;
+            document.getElementById('logViewport').scrollTop = 0;
+            renderLogLines();
+            updateSelectionInfo();
+        };
+        reader.readAsText(file);
+    });
+
+    function renderLogLines() {
+        if (logLinesData.length === 0) return;
+        const viewport = document.getElementById('logViewport');
+        const content = document.getElementById('logContent');
+        const rowHeight = 28;
+        const scrollTop = viewport.scrollTop;
+        const viewportHeight = viewport.clientHeight;
+        const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - 10);
+        const endIndex = Math.min(logLinesData.length - 1, Math.ceil((scrollTop + viewportHeight) / rowHeight) + 10);
+        
+        content.style.transform = `translateY(${startIndex * rowHeight}px)`;
+        content.innerHTML = '';
+        
+        let realStart = -1, realEnd = -1;
+        if (selectStart !== -1) {
+            realStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
+            realEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
+        }
+
+        for (let i = startIndex; i <= endIndex; i++) {
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            if (realStart !== -1 && i >= realStart && i <= realEnd) div.classList.add('selected');
+            div.innerHTML = `<span class="line-num">${i + 1}</span>${escapeHTML(logLinesData[i])}`;
+            div.onclick = () => handleLineClick(i);
+            content.appendChild(div);
+        }
+    }
+
+    function handleLineClick(index) {
+        if (selectStart === -1 || (selectStart !== -1 && selectEnd !== -1)) { selectStart = index; selectEnd = -1; } 
+        else { selectEnd = index; }
+        renderLogLines(); 
+        updateSelectionInfo();
+    }
+
+    function updateSelectionInfo() {
+        const info = document.getElementById('selectionInfo');
+        if (selectStart === -1) { info.textContent = "選択中: 0行"; } 
+        else {
+            const rStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
+            const rEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
+            info.textContent = `選択中: ${rEnd - rStart + 1}行 (行 ${rStart + 1} 〜 ${rEnd + 1})`;
+        }
+    }
+
+    function escapeHTML(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+    function saveScene() {
+        let finalText = "";
+        if (selectStart !== -1) {
+            const rStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
+            const rEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
+            const selectedLines = [];
+            for(let i = rStart; i <= rEnd; i++) { if (logLinesData[i].length > 0) selectedLines.push(logLinesData[i]); }
+            finalText = selectedLines.join('\n');
+        }
+
+        let existingScene = editingSceneId !== null ? scenes.find(s => s.id === editingSceneId) : null;
+        if (existingScene && finalText === "") { finalText = existingScene.text; } 
+        else if (!existingScene && finalText === "") { alert("ログからテキストを選択してください。"); return; }
+
+        const title = document.getElementById('sceneTitle').value || `シーン${scenes.length + 1}`;
+        const bgDir = document.getElementById('sceneBgDir').value;
+        const bgFile = document.getElementById('sceneBg').value;
+        const bgPath = bgFile ? `${bgDir}${bgFile}` : "";
+        const bgmDir = document.getElementById('sceneBgmDir').value;
+        const bgmFile = document.getElementById('sceneBgm').value;
+        const bgmPath = bgmFile ? `${bgmDir}${bgmFile}` : "";
+
+        if(bgFile) bgHistorySet.add(bgFile);
+        if(bgmFile) bgmHistorySet.add(bgmFile);
+        renderHistory();
+
+        if (editingSceneId !== null) {
+            existingScene.title = title; existingScene.text = finalText; existingScene.bg_image = bgPath; existingScene.bgm = bgmPath;
+            editingSceneId = null; 
+            document.getElementById('btnSaveScene').textContent = "＋ 選択範囲をシーンとして追加";
+            document.getElementById('btnSaveScene').classList.remove('btn-success');
+            document.getElementById('btnSaveScene').classList.add('btn-primary');
+        } else {
+            sceneCounter++;
+            scenes.push({ id: sceneCounter, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath });
+        }
+
+        selectStart = -1; selectEnd = -1;
+        document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
+        renderLogLines(); updateSelectionInfo(); renderSceneList();
+    }
+
+    function editScene(id) {
+        const scene = scenes.find(s => s.id === id);
+        if (!scene) return;
+        editingSceneId = id;
+        document.getElementById('sceneTitle').value = scene.title;
+        
+        const bgDirInput = document.getElementById('sceneBgDir');
+        if(scene.bg_image.startsWith(bgDirInput.value)) { document.getElementById('sceneBg').value = scene.bg_image.substring(bgDirInput.value.length); } 
+        else { document.getElementById('sceneBg').value = scene.bg_image; }
+
+        const bgmDirInput = document.getElementById('sceneBgmDir');
+        if(scene.bgm.startsWith(bgmDirInput.value)) { document.getElementById('sceneBgm').value = scene.bgm.substring(bgmDirInput.value.length); } 
+        else { document.getElementById('sceneBgm').value = scene.bgm; }
+
+        const btn = document.getElementById('btnSaveScene');
+        btn.textContent = "✓ シーンを更新";
+        btn.classList.remove('btn-primary'); btn.classList.add('btn-success');
+    }
+
+    function deleteScene(id) {
+        if(confirm("このシーンを削除しますか？")) {
+            scenes = scenes.filter(s => s.id !== id);
+            if (editingSceneId === id) {
+                editingSceneId = null;
+                document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
+                const btn = document.getElementById('btnSaveScene');
+                btn.textContent = "＋ 選択範囲をシーンとして追加";
+                btn.classList.remove('btn-success'); btn.classList.add('btn-primary');
+            }
+            renderSceneList();
+        }
+    }
+
+    let draggedSceneId = null;
+
+    function renderSceneList() {
+        const listEl = document.getElementById('sceneList');
+        listEl.innerHTML = '';
+        scenes.forEach((scene, index) => {
+            const item = document.createElement('div');
+            item.className = 'scene-item';
+            item.draggable = true;
+            const textPreview = scene.text.split('\n')[0] || "(テキストなし)";
+            item.innerHTML = `
+                <div class="scene-item-header">
+                    <span class="scene-item-title">${escapeHTML(scene.title)}</span>
+                    <div class="scene-actions">
+                        <button class="btn-icon" onclick="editScene(${scene.id})" title="編集">✏️</button>
+                        <button class="btn-icon btn-danger" onclick="deleteScene(${scene.id})" title="削除">🗑️</button>
+                    </div>
+                </div>
+                <div class="scene-item-body">
+                    <div><span style="color:#94a3b8; font-weight:bold;">[BG]</span> ${escapeHTML(scene.bg_image || '未設定')}</div>
+                    <div><span style="color:#94a3b8; font-weight:bold;">[BGM]</span> ${escapeHTML(scene.bgm || '未設定')}</div>
+                    <div style="color:#e2e8f0; margin-top:6px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.8;">"${escapeHTML(textPreview)}"</div>
+                </div>
+            `;
+            item.addEventListener('dragstart', (e) => { draggedSceneId = scene.id; e.dataTransfer.effectAllowed = 'move'; item.style.opacity = '0.5'; });
+            item.addEventListener('dragend', (e) => { item.style.opacity = '1'; });
+            item.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if(draggedSceneId === null || draggedSceneId === scene.id) return;
+                const fromIndex = scenes.findIndex(s => s.id === draggedSceneId);
+                const toIndex = index;
+                const draggedScene = scenes.splice(fromIndex, 1)[0];
+                scenes.splice(toIndex, 0, draggedScene);
+                renderSceneList();
+            });
+            listEl.appendChild(item);
+        });
+    }
+
+    function exportJS() {
+        if (scenes.length === 0) { alert("シーンがありません。"); return; }
+        const exportData = scenes.map(s => ({ title: s.title, text: s.text, bg_image: s.bg_image, bgm: s.bgm }));
+        let jsonStr = JSON.stringify(exportData, null, 2);
+        let finalCode = `window.CHAPTER_X_SCENES = ${jsonStr};`;
+        navigator.clipboard.writeText(finalCode).then(() => { alert("✨ クリップボードにJSコードをコピーしました！"); })
+        .catch(err => { alert("コピー失敗: " + err); });
+    }
+
+    function saveProject() {
+        if (scenes.length === 0) { alert("保存するシーンがありません。"); return; }
+        const projectData = { scenes, sceneCounter };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "scene_project.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click(); downloadAnchorNode.remove();
+    }
+
+    function loadProject(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) { scenes = data; sceneCounter = Date.now(); } 
+                else { scenes = data.scenes || []; sceneCounter = data.sceneCounter || Date.now(); }
+                scenes.forEach((s, i) => { 
+                    if(!s.id) s.id = sceneCounter++; 
+                    if(s.bg_image) { const parts = s.bg_image.split('/'); bgHistorySet.add(parts[parts.length-1]); }
+                    if(s.bgm) { const parts = s.bgm.split('/'); bgmHistorySet.add(parts[parts.length-1]); }
+                });
+                renderSceneList(); renderHistory(); event.target.value = '';
+            } catch (err) { alert("プロジェクト読込失敗"); }
+        };
+        reader.readAsText(file);
+    }
+</script>
+</body>
+</html>
