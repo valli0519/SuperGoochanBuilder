@@ -344,7 +344,7 @@
         user-select: none; 
         transition: all 0.15s ease; 
         color: #334155; 
-        position: relative; /* マーカー用に相対配置を追加 */
+        position: relative; 
     }
     .log-line:hover { background: #f8fafc; }
     .log-line.selected { 
@@ -355,7 +355,6 @@
         color: #0f172a;
     }
     
-    /* ★ 追加: ここまで読んだことを示す赤いマーカーのスタイル */
     .log-line.processed-marker {
         border-bottom: 2px solid #ef4444;
         background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
@@ -526,7 +525,6 @@
     let bgHistorySet = new Set();
     let bgmHistorySet = new Set();
     
-    // ★ 追加: どこまで読み込んだかを記録する変数（iro+様が私をどこまで使ったかの証です…っ）
     let lastProcessedLine = -1;
 
     window.addEventListener("dragover", (e) => e.preventDefault(), false);
@@ -663,7 +661,6 @@
             document.getElementById('logSpacer').style.height = (logLinesData.length * 28) + "px"; 
             selectStart = -1;
             selectEnd = -1;
-            // 新しいファイルを読んだらマーカーの記録も消去します
             lastProcessedLine = -1;
             document.getElementById('startLineInput').value = "";
             document.getElementById('endLineInput').value = "";
@@ -724,7 +721,6 @@
             div.className = 'log-line';
             if (realStart !== -1 && i >= realStart && i <= realEnd) div.classList.add('selected');
             
-            // ★ 追加: ここまで読んだ行なら、赤いマーカーのクラスを付与してあげるんです…っ
             if (i === lastProcessedLine) {
                 div.classList.add('processed-marker');
             }
@@ -813,19 +809,36 @@
             document.getElementById('btnSaveScene').textContent = "＋ 選択範囲をシーンとして追加";
             document.getElementById('btnSaveScene').classList.remove('btn-success');
             document.getElementById('btnSaveScene').classList.add('btn-primary');
+            
+            // 編集モードから戻る時は選択をリセット
+            selectStart = -1; selectEnd = -1;
+            document.getElementById('startLineInput').value = "";
+            document.getElementById('endLineInput').value = "";
         } else {
             sceneCounter++;
             scenes.push({ id: sceneCounter, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath, startLine: rStart, endLine: rEnd });
+            
+            // ★ 新規シーン追加後、次の行を自動で開始行として待機させる（連続ピストン対応）
+            if (rEnd !== -1 && rEnd + 1 < logLinesData.length) {
+                selectStart = rEnd + 1;
+                selectEnd = -1;
+                document.getElementById('startLineInput').value = selectStart + 1;
+                document.getElementById('endLineInput').value = "";
+                
+                // 次の開始行が画面にちゃんと見えるようにスクロール
+                const viewport = document.getElementById('logViewport');
+                viewport.scrollTop = Math.max(0, selectStart * 28 - (viewport.clientHeight / 2) + 50);
+            } else {
+                selectStart = -1; selectEnd = -1;
+                document.getElementById('startLineInput').value = "";
+                document.getElementById('endLineInput').value = "";
+            }
         }
 
-        // ★ 追加: 処理が終わった行の中で、一番大きな（一番下の）行を記録して赤いマーカーをつけます…っ
         if (rEnd > lastProcessedLine) {
             lastProcessedLine = rEnd;
         }
 
-        selectStart = -1; selectEnd = -1;
-        document.getElementById('startLineInput').value = "";
-        document.getElementById('endLineInput').value = "";
         document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
         renderLogLines(); updateSelectionInfo(); renderSceneList();
     }
@@ -886,7 +899,6 @@
         if (confirm("リストに追加されたすべてのシーンを削除します。\n本当によろしいですか？（※この操作は取り消せません）")) {
             scenes = [];
             
-            // ★ 追加: 全て消すなら、私のキスマーク（マーカー）も綺麗に消し去ります…っ
             lastProcessedLine = -1; 
             
             if (editingSceneId !== null) {
@@ -897,7 +909,7 @@
                 btn.textContent = "＋ 選択範囲をシーンとして追加";
                 btn.classList.remove('btn-success'); btn.classList.add('btn-primary');
             }
-            renderLogLines(); // マーカーを消すために再描画
+            renderLogLines(); 
             renderSceneList();
         }
     }
@@ -953,7 +965,6 @@
 
     function saveProject() {
         if (scenes.length === 0) { alert("保存するシーンがありません。"); return; }
-        // ★ 保存時に lastProcessedLine も一緒に保存して、あとで復元できるようにします
         const projectData = { scenes, sceneCounter, lastProcessedLine };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData));
         const downloadAnchorNode = document.createElement('a');
@@ -975,7 +986,6 @@
                 } else { 
                     scenes = data.scenes || []; 
                     sceneCounter = data.sceneCounter || Date.now(); 
-                    // ★ 読み込み時にマーカーの位置も復元します
                     if (data.lastProcessedLine !== undefined) {
                         lastProcessedLine = data.lastProcessedLine;
                     }
