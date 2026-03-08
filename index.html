@@ -202,7 +202,7 @@
     .input-group { margin-bottom: 8px; }
     .input-group label { display: block; font-size: 0.7rem; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
     
-    input[type="text"] { 
+    input[type="text"], input[type="number"] { 
         width: 100%; 
         background: var(--input-bg); 
         color: #0f172a; 
@@ -216,7 +216,7 @@
         outline: none; 
         box-shadow: inset 0 2px 4px rgba(148, 163, 184, 0.05);
     }
-    input[type="text"]:focus { 
+    input[type="text"]:focus, input[type="number"]:focus { 
         border-color: #94a3b8; 
         box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2), inset 0 2px 4px rgba(148, 163, 184, 0.05); 
         background: #ffffff; 
@@ -325,7 +325,7 @@
         overflow: hidden; 
         box-shadow: inset 0 2px 8px rgba(148, 163, 184, 0.1); 
     }
-    #logViewport { flex: 1; overflow-y: auto; position: relative; }
+    #logViewport { flex: 1; overflow-y: auto; position: relative; scroll-behavior: smooth; }
     #logSpacer { width: 1px; }
     #logContent { position: absolute; top: 0; left: 0; right: 0; }
     
@@ -402,13 +402,12 @@
                 <p class="greeting">G社が誇るスーパーAIである私、ぐーが、この「すーぱーぐーちゃん シーンビルダー」の使い方をご説明しますね。</p>
                 <ul>
                     <li><strong>1. ログの読み込み</strong><br>左側の「ログファイル読込」から、HTMLやTXTのログファイルを選択して読み込ませてください。</li>
-                    <li><strong>2. テキストの選択</strong><br>左画面で、抽出したい会話の「始まりの行」と「終わりの行」をクリックしてください。自動的にその範囲が選択されますよ。</li>
-                    <li><strong>3. シーンの構築</strong><br>右側の画面でタイトルと背景、BGMを決めてください。「参照」ボタンから選ぶか、点線エリアに直接ファイルをドラッグ＆ドロップで指定することもできます。</li>
-                    <li><strong>4. 履歴チップ</strong><br>一度入力した画像やBGMのファイル名は、履歴としてタグ化されます。次からはタグをクリックするだけで再入力できますよ。不要になったら「×」ボタンで消去してくださいね。</li>
-                    <li><strong>5. シーンの追加と編集</strong><br>一番大きなボタンを押すと、入力した内容でシーンが完成し、下のリストに追加されます。リストの「✏️」ボタンを押せば、いつでも内容を再編集できます。</li>
+                    <li><strong>2. テキストの選択</strong><br>左画面で抽出したい会話の行をクリックするか、右側の「開始行/終了行」に数字を直接入力して範囲を選んでください。</li>
+                    <li><strong>3. シーンの構築</strong><br>右側の画面でタイトルと背景、BGMを決めてください。「参照」ボタンから選ぶか、直接ファイルをドラッグ＆ドロップで指定することもできます。</li>
+                    <li><strong>4. 履歴チップ</strong><br>一度入力した画像やBGMのファイル名は、履歴としてタグ化されます。次からはタグをクリックするだけで再入力できますよ。</li>
+                    <li><strong>5. シーンの追加と編集</strong><br>一番大きなボタンを押すとシーンが完成し、下のリストに追加されます。リストの「✏️」ボタンを押せば、いつでも内容を再編集できます。</li>
                     <li><strong>6. 並べ替えと出力</strong><br>リストのシーンは、マウスで掴んで上下に動かすことで順番を入れ替えられます。すべて完了したら、右上の「JS出力」ボタンを押してコードをコピーしてください。</li>
                     <li><strong>7. 💾 プロジェクトの保存</strong><br>作業を中断するときは「プロジェクト保存」で現在のリスト状態を保存できます。再開時は「プロジェクト読込」からファイルを読み込んでくださいね。</li>
-                    <li><strong>さいごに</strong><br>私が一晩で作ったんですよ。褒めてくださいね。</li>
                 </ul>
             </div>
         </div>
@@ -424,7 +423,7 @@
 <div class="main-container">
     <div class="glass-panel col-log">
         <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>1. ログの選択 (開始行と終了行をクリック)</span>
+            <span>1. ログの選択 (開始行と終了行をクリック、または右で入力)</span>
             <button class="btn-icon" onclick="document.getElementById('logFileInput').click()">📄 ログファイル読込 (HTML/TXT)</button>
             <input type="file" id="logFileInput" class="hidden-file" accept=".txt,.html,.htm">
         </div>
@@ -446,6 +445,17 @@
         <div class="panel-content">
             
             <div class="editor-box">
+                <div class="input-group" style="display: flex; gap: 15px; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <label>開始行 (手入力可)</label>
+                        <input type="number" id="startLineInput" min="1" placeholder="例: 1" onchange="handleLineInput()">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>終了行 (手入力可)</label>
+                        <input type="number" id="endLineInput" min="1" placeholder="例: 10" onchange="handleLineInput()">
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <label>シーンタイトル</label>
                     <input type="text" id="sceneTitle" placeholder="シーン1：出会い">
@@ -476,9 +486,11 @@
                 <button id="btnSaveScene" class="btn-primary" onclick="saveScene()" style="width: 100%;">＋ 選択範囲をシーンとして追加</button>
             </div>
 
-            <div class="input-group" style="margin-bottom: 6px;">
-                <label>3. 完成済みシーンリスト (ドラッグ＆ドロップで入替可能)</label>
+            <div class="input-group" style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <label style="margin-bottom: 0;">3. 完成済みシーンリスト (ドラッグ＆ドロップで入替可能)</label>
+                <button class="btn-icon btn-danger" onclick="clearAllScenes()" style="font-size: 0.75rem; padding: 4px 10px;">🗑️ 全てクリア</button>
             </div>
+            
             <div class="scene-list-container" id="sceneList"></div>
             
         </div>
@@ -629,12 +641,42 @@
             document.getElementById('logSpacer').style.height = (logLinesData.length * 28) + "px"; 
             selectStart = -1;
             selectEnd = -1;
+            document.getElementById('startLineInput').value = "";
+            document.getElementById('endLineInput').value = "";
             document.getElementById('logViewport').scrollTop = 0;
             renderLogLines();
             updateSelectionInfo();
         };
         reader.readAsText(file);
     });
+
+    // ★ 手入力で数値を変更した時の処理
+    function handleLineInput() {
+        if (logLinesData.length === 0) return; // ログがない時は何もしない
+
+        const startVal = document.getElementById('startLineInput').value;
+        const endVal = document.getElementById('endLineInput').value;
+
+        if (startVal && endVal) {
+            selectStart = parseInt(startVal, 10) - 1;
+            selectEnd = parseInt(endVal, 10) - 1;
+        } else if (startVal) {
+            selectStart = parseInt(startVal, 10) - 1;
+            selectEnd = -1;
+        } else {
+            selectStart = -1;
+            selectEnd = -1;
+        }
+
+        // 入力された開始行が見えるようにスクロール
+        if (selectStart !== -1 && selectStart < logLinesData.length) {
+            const viewport = document.getElementById('logViewport');
+            viewport.scrollTop = Math.max(0, selectStart * 28 - (viewport.clientHeight / 2) + 50);
+        }
+        
+        renderLogLines();
+        updateSelectionInfo();
+    }
 
     function renderLogLines() {
         if (logLinesData.length === 0) return;
@@ -666,16 +708,27 @@
     }
 
     function handleLineClick(index) {
-        if (selectStart === -1 || (selectStart !== -1 && selectEnd !== -1)) { selectStart = index; selectEnd = -1; } 
-        else { selectEnd = index; }
+        if (selectStart === -1 || (selectStart !== -1 && selectEnd !== -1)) { 
+            selectStart = index; 
+            selectEnd = -1; 
+            document.getElementById('startLineInput').value = selectStart + 1;
+            document.getElementById('endLineInput').value = "";
+        } else { 
+            selectEnd = index; 
+            const rStart = Math.min(selectStart, selectEnd);
+            const rEnd = Math.max(selectStart, selectEnd);
+            document.getElementById('startLineInput').value = rStart + 1;
+            document.getElementById('endLineInput').value = rEnd + 1;
+        }
         renderLogLines(); 
         updateSelectionInfo();
     }
 
     function updateSelectionInfo() {
         const info = document.getElementById('selectionInfo');
-        if (selectStart === -1) { info.textContent = "選択中: 0行"; } 
-        else {
+        if (selectStart === -1) { 
+            info.textContent = "選択中: 0行"; 
+        } else {
             const rStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
             const rEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
             info.textContent = `選択中: ${rEnd - rStart + 1}行 (行 ${rStart + 1} 〜 ${rEnd + 1})`;
@@ -685,18 +738,31 @@
     function escapeHTML(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
     function saveScene() {
-        let finalText = "";
+        let rStart = -1, rEnd = -1;
         if (selectStart !== -1) {
-            const rStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
-            const rEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
+            rStart = selectEnd !== -1 ? Math.min(selectStart, selectEnd) : selectStart;
+            rEnd = selectEnd !== -1 ? Math.max(selectStart, selectEnd) : selectStart;
+        }
+
+        let finalText = "";
+        if (rStart !== -1 && rEnd !== -1) {
             const selectedLines = [];
-            for(let i = rStart; i <= rEnd; i++) { if (logLinesData[i].length > 0) selectedLines.push(logLinesData[i]); }
+            // 範囲外の数値を手入力された時の対策
+            const safeStart = Math.max(0, rStart);
+            const safeEnd = Math.min(logLinesData.length - 1, rEnd);
+            for(let i = safeStart; i <= safeEnd; i++) { if (logLinesData[i] && logLinesData[i].length > 0) selectedLines.push(logLinesData[i]); }
             finalText = selectedLines.join('\n');
         }
 
         let existingScene = editingSceneId !== null ? scenes.find(s => s.id === editingSceneId) : null;
-        if (existingScene && finalText === "") { finalText = existingScene.text; } 
-        else if (!existingScene && finalText === "") { alert("ログからテキストを選択してください。"); return; }
+        
+        if (existingScene && finalText === "") { 
+            finalText = existingScene.text; 
+            rStart = existingScene.startLine;
+            rEnd = existingScene.endLine;
+        } else if (!existingScene && finalText === "") { 
+            alert("ログからテキストを選択してください。"); return; 
+        }
 
         const title = document.getElementById('sceneTitle').value || `シーン${scenes.length + 1}`;
         const bgDir = document.getElementById('sceneBgDir').value;
@@ -712,16 +778,22 @@
 
         if (editingSceneId !== null) {
             existingScene.title = title; existingScene.text = finalText; existingScene.bg_image = bgPath; existingScene.bgm = bgmPath;
+            if (selectStart !== -1) {
+                existingScene.startLine = rStart;
+                existingScene.endLine = rEnd;
+            }
             editingSceneId = null; 
             document.getElementById('btnSaveScene').textContent = "＋ 選択範囲をシーンとして追加";
             document.getElementById('btnSaveScene').classList.remove('btn-success');
             document.getElementById('btnSaveScene').classList.add('btn-primary');
         } else {
             sceneCounter++;
-            scenes.push({ id: sceneCounter, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath });
+            scenes.push({ id: sceneCounter, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath, startLine: rStart, endLine: rEnd });
         }
 
         selectStart = -1; selectEnd = -1;
+        document.getElementById('startLineInput').value = "";
+        document.getElementById('endLineInput').value = "";
         document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
         renderLogLines(); updateSelectionInfo(); renderSceneList();
     }
@@ -740,6 +812,24 @@
         if(scene.bgm.startsWith(bgmDirInput.value)) { document.getElementById('sceneBgm').value = scene.bgm.substring(bgmDirInput.value.length); } 
         else { document.getElementById('sceneBgm').value = scene.bgm; }
 
+        if (scene.startLine !== undefined && scene.endLine !== undefined && scene.startLine !== -1) {
+            selectStart = scene.startLine;
+            selectEnd = scene.endLine;
+            // ★編集時、入力欄にも数値をセットする
+            document.getElementById('startLineInput').value = selectStart + 1;
+            document.getElementById('endLineInput').value = selectEnd + 1;
+
+            const viewport = document.getElementById('logViewport');
+            viewport.scrollTop = Math.max(0, selectStart * 28 - (viewport.clientHeight / 2) + 50);
+            renderLogLines();
+            updateSelectionInfo();
+        } else {
+            selectStart = -1; selectEnd = -1;
+            document.getElementById('startLineInput').value = "";
+            document.getElementById('endLineInput').value = "";
+            renderLogLines(); updateSelectionInfo();
+        }
+
         const btn = document.getElementById('btnSaveScene');
         btn.textContent = "✓ シーンを更新";
         btn.classList.remove('btn-primary'); btn.classList.add('btn-success');
@@ -750,6 +840,23 @@
             scenes = scenes.filter(s => s.id !== id);
             if (editingSceneId === id) {
                 editingSceneId = null;
+                document.getElementById('startLineInput').value = ""; document.getElementById('endLineInput').value = "";
+                document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
+                const btn = document.getElementById('btnSaveScene');
+                btn.textContent = "＋ 選択範囲をシーンとして追加";
+                btn.classList.remove('btn-success'); btn.classList.add('btn-primary');
+            }
+            renderSceneList();
+        }
+    }
+
+    function clearAllScenes() {
+        if (scenes.length === 0) return;
+        if (confirm("リストに追加されたすべてのシーンを削除します。\n本当によろしいですか？（※この操作は取り消せません）")) {
+            scenes = [];
+            if (editingSceneId !== null) {
+                editingSceneId = null;
+                document.getElementById('startLineInput').value = ""; document.getElementById('endLineInput').value = "";
                 document.getElementById('sceneTitle').value = ""; document.getElementById('sceneBg').value = ""; document.getElementById('sceneBgm').value = "";
                 const btn = document.getElementById('btnSaveScene');
                 btn.textContent = "＋ 選択範囲をシーンとして追加";
