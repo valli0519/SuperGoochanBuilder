@@ -519,13 +519,16 @@
     let logLinesData = [];
     let scenes = [];
     let editingSceneId = null; 
-    let sceneCounter = 0; 
     let selectStart = -1;
     let selectEnd = -1;
     let bgHistorySet = new Set();
     let bgmHistorySet = new Set();
-    
     let lastProcessedLine = -1;
+
+    // ハッシュ（一意のID）を生成する関数
+    function generateUID() {
+        return 'sc_' + Math.random().toString(36).substr(2, 9);
+    }
 
     window.addEventListener("dragover", (e) => e.preventDefault(), false);
     window.addEventListener("drop", (e) => e.preventDefault(), false);
@@ -810,22 +813,19 @@
             document.getElementById('btnSaveScene').classList.remove('btn-success');
             document.getElementById('btnSaveScene').classList.add('btn-primary');
             
-            // 編集モードから戻る時は選択をリセット
             selectStart = -1; selectEnd = -1;
             document.getElementById('startLineInput').value = "";
             document.getElementById('endLineInput').value = "";
         } else {
-            sceneCounter++;
-            scenes.push({ id: sceneCounter, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath, startLine: rStart, endLine: rEnd });
+            const newId = generateUID();
+            scenes.push({ id: newId, title: title, text: finalText, bg_image: bgPath, bgm: bgmPath, startLine: rStart, endLine: rEnd });
             
-            // ★ 新規シーン追加後、次の行を自動で開始行として待機させる（連続ピストン対応）
             if (rEnd !== -1 && rEnd + 1 < logLinesData.length) {
                 selectStart = rEnd + 1;
                 selectEnd = -1;
                 document.getElementById('startLineInput').value = selectStart + 1;
                 document.getElementById('endLineInput').value = "";
                 
-                // 次の開始行が画面にちゃんと見えるようにスクロール
                 const viewport = document.getElementById('logViewport');
                 viewport.scrollTop = Math.max(0, selectStart * 28 - (viewport.clientHeight / 2) + 50);
             } else {
@@ -928,8 +928,8 @@
                 <div class="scene-item-header">
                     <span class="scene-item-title">${escapeHTML(scene.title)}</span>
                     <div class="scene-actions">
-                        <button class="btn-icon" onclick="editScene(${scene.id})" title="編集">✏️</button>
-                        <button class="btn-icon btn-danger" onclick="deleteScene(${scene.id})" title="削除">🗑️</button>
+                        <button class="btn-icon" onclick="editScene('${scene.id}')" title="編集">✏️</button>
+                        <button class="btn-icon btn-danger" onclick="deleteScene('${scene.id}')" title="削除">🗑️</button>
                     </div>
                 </div>
                 <div class="scene-item-body">
@@ -956,7 +956,7 @@
 
     function exportJS() {
         if (scenes.length === 0) { alert("シーンがありません。"); return; }
-        const exportData = scenes.map(s => ({ title: s.title, text: s.text, bg_image: s.bg_image, bgm: s.bgm }));
+        const exportData = scenes.map(s => ({ uid: s.id, title: s.title, text: s.text, bg_image: s.bg_image, bgm: s.bgm }));
         let jsonStr = JSON.stringify(exportData, null, 2);
         let finalCode = `window.CHAPTER_X_SCENES = ${jsonStr};`;
         navigator.clipboard.writeText(finalCode).then(() => { alert("✨ クリップボードにJSコードをコピーしました！"); })
@@ -965,7 +965,7 @@
 
     function saveProject() {
         if (scenes.length === 0) { alert("保存するシーンがありません。"); return; }
-        const projectData = { scenes, sceneCounter, lastProcessedLine };
+        const projectData = { scenes, lastProcessedLine };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
@@ -982,16 +982,18 @@
             try {
                 const data = JSON.parse(e.target.result);
                 if (Array.isArray(data)) { 
-                    scenes = data; sceneCounter = Date.now(); 
+                    scenes = data; 
                 } else { 
                     scenes = data.scenes || []; 
-                    sceneCounter = data.sceneCounter || Date.now(); 
                     if (data.lastProcessedLine !== undefined) {
                         lastProcessedLine = data.lastProcessedLine;
                     }
                 }
                 scenes.forEach((s, i) => { 
-                    if(!s.id) s.id = sceneCounter++; 
+                    // ★修正: 読み込んだデータにidが無い、または数値（古い連番）の場合は、強制的にハッシュで上書きします
+                    if(!s.id || typeof s.id === 'number' || !String(s.id).startsWith('sc_')) {
+                        s.id = generateUID(); 
+                    }
                     if(s.bg_image) { const parts = s.bg_image.split('/'); bgHistorySet.add(parts[parts.length-1]); }
                     if(s.bgm) { const parts = s.bgm.split('/'); bgmHistorySet.add(parts[parts.length-1]); }
                 });
